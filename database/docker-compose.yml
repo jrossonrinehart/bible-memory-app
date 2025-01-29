@@ -1,0 +1,45 @@
+services:
+  db:
+    image: postgres:latest
+    container_name: bible_db
+    environment:
+      POSTGRES_USER: bible_user
+      POSTGRES_PASSWORD: bible_password
+      POSTGRES_DB: bible_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - bible_data:/var/lib/postgresql/data
+    networks:
+      - db_network
+
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@admin.com
+      - PGADMIN_DEFAULT_PASSWORD=root
+    ports:
+      - "8080:80"
+    networks:
+      - db_network
+  
+  jupyter:
+    image: jupyter/scipy-notebook:latest
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./notebooks:/home/jovyan/work
+      - ./data:/home/jovyan/data
+    environment:
+      - JUPYTER_ENABLE_LAB=yes
+    depends_on:
+      - db
+    networks:
+      - db_network
+
+volumes:
+  bible_data:
+
+networks:
+  db_network:
+
